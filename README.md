@@ -3,7 +3,7 @@
 O V E R V I E W:
 ------------------
 
-Kansas Federal University requires system in place that allows the users i.e. faculty and students as they may work on a file across multiple devices i.e. notebook or desktop computers around a clock to synchronize contents of files. The users can work with these devices across any location i.e. at home, in their office, or while traveling. In order to make this possible KSU needs a File Management System(FMS)that will synchronize contents of the various file systems. This allows the users to work on one device, and then propagate the changes to other devices.
+Kansas State University requires system in place that allows the users i.e. faculty and students as they may work on a file across multiple devices i.e. notebook or desktop computers around a clock to synchronize contents of files. The users can work with these devices across any location i.e. at home, in their office, or while traveling. In order to make this possible KSU needs a File Management System(FMS)that will synchronize contents of the various file systems. This allows the users to work on one device, and then propagate the changes to other devices.
 
 
 SPECIFIC   REQUIREMENTS:
