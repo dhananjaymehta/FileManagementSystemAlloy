@@ -1,0 +1,117 @@
+
+F I L E   M A N A G E M E N T   S Y S T E M :
+-----------------------------------------------
+
+FMS is defined as a program that is used to organize and keep track of files. It manages a hierarchical structure of files system and uses directories and subdirectories to organize files into a tree structure. Any user that is registered to the file system is able to store and organize the files. A file system when associated with a single device is fairly simple but a distributed file system is a challenge. Single device based file system locates all the files on the same device , users can login to the devices and access the files. A distributed file system (which is required in this assignment) has several challenges such as user can access files from multiple devices, files should be synchronized to allow user to access a standard file across all platforms. This file system gives user flexibility and anytime access to his/her files. 
+
+There are several distributed FMS such as Microsoft Online, Google Docs, RackSpace file storage, Amazon Web Services. We have decided to implement the files system based on Google Docs. We given a brief description of Google FMS below - 
+1. User has to be registered with Google FMS.
+2. If user is registered he can perform operations on files such as create, update, delete after logging into his/her deice.
+3. User can access files across all the devices - Desktop , Laptop, Tablets or Smartphones once user is authenticated to be a valid user.
+4. If user reads a file no modifications are made to the file on the Google FMS.
+5. If user writes any data to file these changes are saved on the files on Google FMS(this is a single file on google cloud and not physically located on the user device.)
+6. User files are backed up periodically on the file system.
+
+Based on this model we will write the specification and build our alloy model for our File Management System.
+
+
+
+P R O B L E M   O V E R V I E W:
+---------------------------------
+
+Kansas Federal University requires system in place that allows the users i.e. faculty and students as they may work on a file across multiple devices i.e. notebook or desktop computers around a clock to synchronize contents of files. The users can work with these devices across any location i.e. at home, in their office, or while traveling. In order to make this possible KSU needs a File Management System(FMS)that will synchronize contents of the various file systems. This allows the users to work on one device, and then propagate the changes to other devices.
+
+
+
+S P E C I F I C   R E Q U I R E M E N T S:
+-------------------------------------------
+
+1. Create FMS for Kansas State University to manage the files of its "Students" and "Faculty".
+
+2. System will have two users - Faculty & Students.
+
+3. Each user of FMS shall be registered, which means user should be part of KSU. A non registered user cannot access the FMS.
+
+4. A user can work on multiple devices - Desktop Computer, Notebook.
+
+5. User shall be able to access a file it owns from across all devices user owns.
+
+6. FMS shall maintain a table of files owned by user.
+
+7. FMS shall maintain a table of devices owned by the user.
+
+8. FMS allows a user  to access a file from his registered devices from any locations - Office, Home, or Traveling. User can be physically present at one of the above locations at a time.
+
+9. FMS should synchronize content of files so that any change made to a file from any of the registered devices is reflected across all other devices of the user when user access these files.
+
+10. Files in FMS are organized in a hierarchical tree structure where files are placed inside a directory or subdirectory. 
+
+11. Files have been be categorized as - Normal and Sensitive. Sensitive files are the ones which have certain restrictions on them. Example: File containing student's data shall only be on Desktop and not Notebook.
+
+12. System should be able to take a backup of all files , this allows user to restore files in case of any mistake or error.
+
+sig FMS {
+
+// FSM saves a set of Active users
+registereduser : set User,
+
+//logfile saves status of a file READ/WRITE in FSM.
+logfile: File -> one Status,
+
+//FSM keep tracks location where user is located and set the location as active location.
+activelocation : set Location,
+
+//File directory indicate the directory of the file in FMS.
+filedirectory: File -> one Directory ,
+
+//subdirectory give information about the sub directories of a Directories in FMS.
+subdirectory: Directory -> lone Directory,
+
+//ownertable indicates owner of a file in FMS.
+ownertable: File ->one User,
+
+//accesstable indicates people who can access the file in FMS.
+accesstable: User-> File,
+
+//devicetable indicates device on which file is located in FMS.
+devicetable: Devices -> File,
+
+//deviceuser indicates device a user owns that are associated to FMS.
+deviceuser: Devices some -> one User,
+
+//backupfiles backs up file in FMS.
+backupfiles: File -> lone Backup,
+}
+
+
+
+S Y S T E M   C O N S T R A I N T S:
+--------------------------------------
+
+1. A file when accessed by a user can have one of two status -  Read or Write at a time. A file can not have two status simultaneously.
+
+2. A file can be located under only one directory and subdirectory , it should not be present at two separate directories as file path is always unique.
+
+3. Once the file changes FMS should recognize changes in the file. A change in file can be detected when status of files changes from Read -> Write or Write-> Read. These changes in file status can be maintained by a log file. 
+
+4. A file in READ status can be accessed by any registered user who has access to the file. Access table is created to maintain an entry of user who can access a file. 
+
+5. A file in WRITE status can be accessed by only one user and from only one device. This is to avoid multiple write to a file in FMS. This check avoids to place additional check to test multiple updates on a file.
+
+6. Backups are stored in a separate directory and not inside directory where files are stored. This helps if entire filesystem fails on FMS.
+
+7. FMS shall automatically take backup. To allow automatic backup, files are backed up when status of a file changes from Write to Read.
+
+8. Files are automatically synchronized when status of file changes from Write to Read.
+
+9. User is able to access a file from multiple locations.
+
+
+N O T E:
+----------
+
+Following Assumption have been taken into consideration:
+
+1. We are not taking file contents into consideration it is not possible to verify whether file got modified or not while opening a file in WRITE status and closing it without appending some data to file.
+
+2. During testing we only take one instance of FMS because the problem only require one FMS for KSU.

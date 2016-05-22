@@ -1,0 +1,103 @@
+-------------
+-- N O T E:
+-------------
+
+-- This file provides tests to check that the implementation satisfies the requirements. 
+-- These tests correspond to the constraints developed while modeling the system based on the requirements. 
+-- We state reasons for our testscase. 
+-- These tests have been written in ALLOY using asserts and check. And these are included in the main mode.
+-- As there is only one File Management System for KSU we run check for 1.
+
+----------------------
+-- developer-log.txt--
+----------------------
+
+-- 1. RegisteredUserAccess
+-- This assestion shows a file can only be accessed(read/write) by a registered user.
+-- 
+assert RegisteredUserAccess{
+all fms:FMS, f: File | fms.ownertable[f] =fms.registereduser
+}
+check RegisteredUserAccess for 1
+
+
+-- 2. OwnerWriteAccessFile
+-- This assertion shows that only Owner has access to open file in WRITE (i.e. to edit)
+--
+assert OwnerWriteAccessFile{
+all f: File, fms:FMS | fms.logfile[f]=Write implies fms.ownertable[f]  in fms.registereduser
+}
+check OwnerWriteAccessFile for 1
+
+-- 3. UsersReadAccess
+-- This assertion shows that anyone who has access to a file can read a file.
+--
+assert UsersReadAccess{
+all f: File, fms:FMS | fms.logfile[f]=Read implies fms.accesstable.f in fms.registereduser
+}
+check UsersReadAccess for 1
+
+-- 4. SingleDeviceAccess
+-- This assertion shows that a file in Write mode can be accessed from only one Device.
+-- 
+assert SingleDeviceAccess{
+all f:File, fms:FMS | fms.logfile[f]=Write implies #(fms.devicetable.f) =1
+}
+check SingleDeviceAccess for 1
+
+-- 5. MultipleDeviceAccess
+-- This assertion checks if multiple devices can access a file in read mode.
+-- 
+assert MultipleDeviceAccess{
+all f:File, fms: FMS | fms.logfile[f] = Read implies #(fms.devicetable.f) >=0
+}
+check MultipleDeviceAccess for 1
+
+-- 6. CheckFileStatus
+-- This assertion checks that file has atleast one status - READ or WRITE
+-- 
+assert CheckFileStatus{
+all f: File, fms: FMS | fms.logfile[f]=Read or fms.logfile[f]=Write
+}
+check CheckFileStatus for 1
+
+-- 7. CheckIfFileInDirectory
+-- This assertion checks that a file is inside a directory and maintains a hierarchial structure.
+--
+assert CheckIfFileInDirectory{
+all f:File, fms: FMS | #(fms.filedirectory[f]) = 1
+}
+check CheckIfFileInDirectory for 1
+
+-- 8. CheckSensitiveFile
+-- This assertion checks that a sensitive file resides only on Desktop.
+-- 
+assert CheckSensitiveFile{
+all f:File,fms:FMS | f.permission=Sensitive implies fms.devicetable.f = Desktop
+}
+check CheckSensitiveFile for 1
+
+-- 9. CheckPersonalFile
+-- This assertion checks that a personal or a non-sensitive file can reside on any device.
+-- 
+assert CheckPersonalFile{
+all f:File,fms:FMS | f.permission=Personal implies fms.devicetable.f = Desktop or  fms.devicetable.f = Laptop
+}
+check CheckPersonalFile for 1
+
+-- 10. CheckForBackup
+-- This assertion checks that a file is backed up when a file is updated.
+-- 
+assert CheckForBackup{
+all f:File, fms,fms':FMS | FileUpdate[f, fms,fms'] implies
+#((fms'.backupfiles).Backup)= #((fms.backupfiles).Backup + 1)
+}
+check CheckForBackup for 1
+
+--11. BackupUpdated
+--This assertion checks that if all the files in Read mode are backed up or not
+--
+assert BackupUpdated{
+all f:File,fms:FMS | fms.logfile[f] = Read implies f in (fms.backupfiles).Backup 
+}
+check BackupUpdated for 1
